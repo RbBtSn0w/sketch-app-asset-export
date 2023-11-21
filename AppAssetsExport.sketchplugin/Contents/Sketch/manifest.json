@@ -1,28 +1,26 @@
 {
-   "name": "App  Assets Export",
+  "name": "App  Assets Export",
   "description": "One key to export Android/iOS App icons.",
   "author": "Andrew Huang",
   "homepage": "https://github.com/work4blue/sketch-app-asset-export",
-  "version": "1.0.5",
+  "version": "2.0.0",
   "identifier": "cn.bluedrum.sketch-app-aasset-export",
-  "compatibleVersion": "1.0.5",
-  "bundleVersion": 5,
-
-    "commands" : [
-       {
-      "script" : "export.js",
-     "handler" : "onExportIcon",
-      "shortcut" : "",
-       "name" : "Export App Icons",
-      "identifier" : "cn.bluedrum.export-appicon"
+  "compatibleVersion": "2.0.0",
+  "bundleVersion": 1,
+  "commands": [
+    {
+      "script": "handler.js",
+      "handler": "onExportIcon",
+      "shortcut": "",
+      "name": "Export App Icons",
+      "identifier": "cn.bluedrum.export-appicon"
     },
     {
-      "script" : "export.js",
-     "handler" : "onSetting",
-      "shortcut" : "",
-       "name" : "Preferences",
-      "identifier" : "cn.bluedrum.export-pref"
+      "script": "handler.js",
+      "handler": "onSetting",
+      "shortcut": "",
+      "name": "Preferences",
+      "identifier": "cn.bluedrum.export-pref"
     }
-   
   ]
 }

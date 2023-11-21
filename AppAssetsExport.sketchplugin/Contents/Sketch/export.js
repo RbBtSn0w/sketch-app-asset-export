@@ -7,20 +7,57 @@ var presets = {
         androidResPath:'/Users/Shared/AppIcon/res',
         otherPath:'/Users/Shared/AppIcon',
         exportXcode:1,
+        export_iOSIcon:1,
+        export_watchOSIcon:0,
         exportAndroid:1,
         exportOther:1,
-        exportIphoneIcon:1,
-        exportIpadIcon:0,
-        exportAppleWatchIcon:0,
-        exportMacIcon:0,
         desktopAppPath: '/Users/Shared/AppIcon/DesktopApp',
         exportDesktopApp:0,
         exportWinIco:0,
-        exportMacIcns:0,
+        export_macOSIcon:0,
         exportWebFav:0,
 }   ;    
 
-//83.5-->167 iPad Pro
+function generateAppleIconInfo(imageIdiom, imagePlatform, imageScale, imageSize) {
+  const asset = {
+    idiom: imageIdiom,
+    platform: imagePlatform,
+    scale: imageScale,
+    size: imageSize
+  };
+  return asset;
+}
+
+const iOSIconInfos = [
+  generateAppleIconInfo("universal", "ios", "2x", "20x20"),
+  generateAppleIconInfo("universal", "ios", "3x", "20x20"),
+  generateAppleIconInfo("universal", "ios", "2x", "29x29"),
+  generateAppleIconInfo("universal", "ios", "3x", "29x29"),
+  generateAppleIconInfo("universal", "ios", "2x", "38x38"),
+  generateAppleIconInfo("universal", "ios", "3x", "38x38"),
+  generateAppleIconInfo("universal", "ios", "2x", "40x40"),
+  generateAppleIconInfo("universal", "ios", "3x", "40x40"),
+  generateAppleIconInfo("universal", "ios", "2x", "60x60"),
+  generateAppleIconInfo("universal", "ios", "3x", "60x60"),
+  generateAppleIconInfo("universal", "ios", "2x", "64x64"),
+  generateAppleIconInfo("universal", "ios", "3x", "64x64"),
+  generateAppleIconInfo("universal", "ios", "2x", "68x68"),
+  generateAppleIconInfo("universal", "ios", "2x", "76x76"),
+  generateAppleIconInfo("universal", "ios", "2x", "83.5x83.5"),
+  generateAppleIconInfo("universal", "ios", undefined, "1024x1024")
+];
+
+
+function generateImageContent(imageFilename, appleIconInfo) {
+  const asset = {
+    filename: imageFilename,
+    idiom: appleIconInfo.idiom,
+    platform: appleIconInfo.platform,
+    scale: appleIconInfo.scale,
+    size: appleIconInfo.size
+  };
+  return asset;
+}
 
 var I18N = Resources.I18N;
 
@@ -28,21 +65,16 @@ var doc,
     exportDir, 
     exportInfo,
     appIconSetPath,
-    defalutPath = "/Users/Shared/AppIcon",
     currentLayer,
-    iOSSuffixArray = ["60@2x","60@3x","76","76@2x","Small-40","Small-40@2x",
-                          "Small-40@3x","Small","Small@2x","Small@3x","83.5@2x","20","20@2x","20@3x"],
-    iOSSizeArray = [ 120,180,76,152,40,80,120,29,58,87,167,20,40,60],
-    iOSBaseArray = [ 60,60,76,76,40,40,40,29,29,29,83.5,20,20,20],
 
     androidDirArray = ["ldpi","mdpi","hdpi","xhdpi","xxhdpi","xxxhdpi"],
     androidSizeArray = [ 36,48,72,96,144,192],
 
-     storeSuffixArray = [ "iTunesArtwork","iTunesArtwork@2x","GooglePlay","mi-90","mi-136","mi-168","mi-192","mi-224","qq-16","qq-512"],
-      storeSizeArray = [ 512,1024,512,90,136,168,192,224,16,512];
+    storeSuffixArray = [ "iTunesArtwork","iTunesArtwork@2x","GooglePlay","mi-90","mi-136","mi-168","mi-192","mi-224","qq-16","qq-512"],
+    storeSizeArray = [ 512,1024,512,90,136,168,192,224,16,512];
 
-      macSuffixArray = ["16x16","16x16@2x","32x32","32x32@2x","128x128","128x128@2x","256x256","256x256@2x","512x512","512x512@2x"];
-      macSizeArray = [16,32,32,64,128,256,256,512,512,1024];
+    macSuffixArray = ["16x16","16x16@2x","32x32","32x32@2x","128x128","128x128@2x","256x256","256x256@2x","512x512","512x512@2x"];
+    macSizeArray = [16,32,32,64,128,256,256,512,512,1024];
 
 
   var userDefaults = loadDefaults(presets);
@@ -77,46 +109,36 @@ var doc,
         }
     }
     return result;
-}
+    }
     
 
 
 
 //lowcast : file name  to 
-function exportScaleLayer(layer,dir,width,suffix){
+function exportScaleLayer(layer, dir, width, suffix){
      
-      frame = [layer frame];
-     var scale = width / [frame width];
+  frame = [layer frame];
+  var scale = width / [frame width];
 
-     
+  if(typeof suffix == 'undefined'){
 
-     if(typeof suffix == 'undefined'){
-      var name = layer.name()+".png";
+    var name = layer.name()+".png";
+    var path = dir+"/" + name.toLowerCase();
 
-       var path = dir+"/" + name.toLowerCase();
+    log("exportScaleLayer "+path);
 
-        
+    exportLayerToPath(layer,path,scale,"png");
+  } else {
 
-       log("exportScaleLayer "+path) ;
+    var name2 = layer.name()+"-"+suffix+".png";
+    var path =  dir+"/"+ name2;
 
-      exportLayerToPath(layer,path,scale,"png");
-    }
-    else{
-       var name2 = layer.name()+"-"+suffix+".png";
+    log("exportScaleLayer2 "+path)
 
-       var path =  dir+"/"+ name2;; 
+    exportLayerToPath(layer,path,scale,"png","-"+suffix);
+  }
 
-        
-
-       log("exportScaleLayer2 "+path)
-
-       exportLayerToPath(layer,path,scale,"png","-"+suffix);
-     }
-        
-     
-
-     return  name2;
-    
+  return  name2;  
  }
 
 
@@ -175,158 +197,98 @@ function findImage(imagesArray,filename){
 }
 
 //在Content中增加相应记录
- function addIconContent(imagesArray,name,suffix,isIpad){
-      // var suffix =  iOSSuffixArray[index];
 
-       var index = -1;
-       var scale = "1x";
+function calculateResultSize(scale, size) {
+  if (scale && size) {
+    const scaleValue = parseFloat(scale);
+    const [width, height] = size.split("x").map(parseFloat);
+    return `${scaleValue * width}x${scaleValue * height}`;
+  } else if (size) {
+    const [width, height] = size.split("x").map(parseFloat);
+    return `${width}x${height}`;
+  } else {
+    return undefined;
+  }
+}
 
-       for(var i=0; i< iOSSuffixArray.length ; i++){
-             if(iOSSuffixArray[i] == suffix){
-                index = i;
-                break;
-             }
-       }
+function addIconContentOfXCAssets(imagesArray, name, appleIconInfo){
 
+  
+  var suffix = calculateResultSize(appleIconInfo.scale, appleIconInfo.size)
+  var filename = name+"-"+suffix+".png";
+  
+  const [width, height] = suffix.split("x").map(parseFloat);
 
-       if(index == -1){
-          log(" addIconContent failure suffix "+suffix);
-          return ;
-       }
+  //查找是否已经生成,如果没有则生成
+  if(!findImage(imagesArray, filename)){
+      log("no find "+filename+",export ");
+      exportScaleLayer(currentLayer, appIconSetPath, width, suffix);
+  }
+  else {
+    log(" find "+filename);
+  }
 
-      
-
-       var baseSize =  iOSBaseArray[index];
-       var sizeStr =  ""+baseSize+"x"+baseSize;
-
-         if(suffix.endsWith("@2x"))
-              scale = "2x";
-            else if (suffix.endsWith("@3x"))
-               scale = "3x";
-
-            var device = (isIpad ? "ipad" : "iphone");
-            var filename = name+"-"+suffix+".png";
-
-
-            if(!findImage(imagesArray,filename)){
-                log("no find "+filename+",export ");
-                var size =  iOSSizeArray[index];
-                exportScaleLayer(currentLayer,appIconSetPath,size,suffix);
-            }
-            else {
-              log(" find "+filename);
-            }
-
-            //查找是否已经生成,如果没有则生成
-
-             var  imageObj = {              
-                  idiom : device,
-                  size:sizeStr,
-                  scale : scale,
-                  filename : filename
-             }
-            imagesArray.push(imageObj)     
-           //imagesArray.splice(0,0,imageObj); //插入头部 
-
- }
-
-function exportIphoneContentJson(layer,imagesArray){
-   var name = layer.name();
-
-   addIconContent(imagesArray,name,"20@2x",0);
-   addIconContent(imagesArray,name,"20@3x",0);
-   addIconContent(imagesArray,name,"Small",0); //Small
-   addIconContent(imagesArray,name,"Small@2x",0); 
-   addIconContent(imagesArray,name,"Small@3x",0); 
-
-    //addIconContent(imagesArray,name,"Small-40",0); 
-    addIconContent(imagesArray,name,"Small-40@2x",0); 
-    addIconContent(imagesArray,name,"Small-40@3x",0); 
-
-   addIconContent(imagesArray,name,"60@2x",0); 
-   addIconContent(imagesArray,name,"60@3x",0); 
-   // addIconContent(imagesArray,name,"76",0); 
-   // addIconContent(imagesArray,name,"76@2x",0); 
+  imagesArray.push(generateImageContent(filename, appleIconInfo))   
 
 }
 
-function exportIpadContentJson(layer,imagesArray){
+function exportIconOfiOSContentJson(layer,imagesArray){
+
    var name = layer.name();
 
-    addIconContent(imagesArray,name,"20",1);
-    addIconContent(imagesArray,name,"20@2x",1);
-
-    addIconContent(imagesArray,name,"Small-40",1); 
-    addIconContent(imagesArray,name,"Small-40@2x",1); 
-
-
-   addIconContent(imagesArray,name,"76",1); 
-   addIconContent(imagesArray,name,"76@2x",1); 
-   addIconContent(imagesArray,name,"83.5@2x",1); 
-
-  
-
-    addIconContent(imagesArray,name,"Small",1); 
-    addIconContent(imagesArray,name,"Small@2x",1); 
-  
+   for (var i = 0; i < iOSIconInfos.length; i++) {
+    addIconContentOfXCAssets(imagesArray, name, iOSIconInfos[i])
+   }
 }
 
 function exportWatchContentJson(layer,imagesArray){
   
 }
 
-function exportIOSIcon(layer){
-   //var tmpDir =  "/Users/pro/Documents/AppIcon";
+function exportIOSIcon(layer) {
+  //var tmpDir =  "/Users/pro/Documents/AppIcon";
 
-   log("exportIOSIcon 11"+getSketchVersionNumber());
-
-      checkExportDir(userDefaults.xcodeProjectPath,"AppIcon.appiconset");
-   
+  log("exportIOSIcon 1"+getSketchVersionNumber());
 
 
+  checkExportDir(userDefaults.xcodeProjectPath,"AppIcon.appiconset");
+  
+  //输出所需图片
+  var imagesArray = [];
+  currentLayer = layer;
 
-          //输出所需图片
-          var imagesArray = [];
-          currentLayer = layer;
-
-        log("exportIOSIcon 1");
-
-
-        if(userDefaults.exportIpadIcon == 1)
-         {
-                
-            exportIpadContentJson(layer,imagesArray);
-
-         }
-
-         log("exportIOSIcon 2");
-         
-         if(userDefaults.exportIphoneIcon ==1){
-             exportIphoneContentJson(layer,imagesArray);
-         }
+  if(userDefaults.export_iOSIcon ==1){
+    exportIconOfiOSContentJson(layer,imagesArray);
+  }
 
 
-         exportInfo += I18N.EXPORT_IOS_ICON + appIconSetPath +"\n\n";
+  exportInfo += I18N.EXPORT_IOS_ICON + appIconSetPath +"\n\n";
 
 
-       imageContent = {
-        info : {
-          version : 1,
-          author : "bluedrum"
-        },
-        images : imagesArray
-      }
+  // const currentDate = new Date();
+  // const version = currentDate.getFullYear() * 10000 + (currentDate.getMonth() + 1) * 100 + currentDate.getDate();
 
+  imageContent = {
+    info : {
+      version : 1, //version can't change for xcode
+      author : "xcode"
+    },
+    images : imagesArray
+  }
 
-      log("exportIOSIcon 3");
-      var filePath = appIconSetPath + "/Contents.json"
-      log("json file2 "+filePath);
-      var jsonString = stringify(imageContent, true)  
+  log("exportIOSIcon 3");
+  var filePath = appIconSetPath + "/Contents.json"
+  log("json file2 "+filePath);
 
-       log("exportIOSIcon 4");
-          writeTextToFile(jsonString, filePath)
+  const jsonString = JSON.stringify(imageContent, (key, value) => {
+    if (value === undefined) return undefined;
+      return value;
+  }, 2);
 
-           log("exportIOSIcon 5");
+  log("exportIOSIcon 4");
+  writeTextToFile(jsonString, filePath)
+
+  log("exportIOSIcon 5");
 }
 
   function createGroup(mask){
@@ -424,7 +386,7 @@ function exportAndroidIcon(layer){
 
 
 
- function exportMacIcns(layer){
+ function export_macOSIcon(layer){
 
     checkExportDir(userDefaults.desktopAppPath, layer.name()+".iconset");
 
@@ -449,7 +411,7 @@ function exportAndroidIcon(layer){
      //iconutil -c icon.icns <path to .iconset file>
      var convertIcns = "/usr/bin/iconutil -c icns  \""+ path+"\" -o \"" +userDefaults.desktopAppPath +"/"+layer.name()+".icns\""; 
 
-     log("exportMacIcns "+convertIcns);
+     log("export_macOSIcon "+convertIcns);
 
       [convertTask setLaunchPath:@"/bin/bash"]
       [convertTask setArguments:["-c", convertIcns]]
@@ -470,9 +432,9 @@ function exportAndroidIcon(layer){
 
     }
 
-   if(userDefaults.exportMacIcns == 1){
+   if(userDefaults.export_macOSIcon == 1){
         //checkExportDir(userDefaults.desktopAppPath,"iconset");
-        exportMacIcns(layer);
+        export_macOSIcon(layer);
     }
 
      if(userDefaults.exportWebFav == 1){
@@ -481,176 +443,7 @@ function exportAndroidIcon(layer){
 
  }
 
- var onSetting = function onSetting(context){
-  log("onSetting7");
-  
-
-
-
-  log("export222 "+I18N.LAETVERSION);
-
-  log("userDefaults.xcodeProjectPath ="+userDefaults.xcodeProjectPath);
-
-    var accessory = NSView.alloc().initWithFrame(NSMakeRect(0,0,300,340));
-
-
-    var checkboxDesktop = NSButton.alloc().initWithFrame(NSMakeRect(0,295,300,25));
-    checkboxDesktop.setButtonType(3);
-    checkboxDesktop.title = I18N.INPUT_DESKTOP_APP_FLODER;
-    checkboxDesktop.state =  userDefaults.exportDesktopApp;
-
-  
-
-   var desktopAppInput = NSTextField.alloc().initWithFrame(NSMakeRect(0,270,300,25));
-    desktopAppInput.stringValue = userDefaults.desktopAppPath;
-    desktopAppInput.editable = true;
-    //desktopAppInput.placeholder="Drop you project or workspace file to here"
-
-
-    var checkboxWinIco = NSButton.alloc().initWithFrame(NSMakeRect(20,246,300,25));
-    checkboxWinIco.setButtonType(3);
-    checkboxWinIco.title = 'Win Ico';
-    checkboxWinIco.state =  userDefaults.exportWinIco;
-
-    var checkboxMacIcns = NSButton.alloc().initWithFrame(NSMakeRect(100,246,300,25));
-    checkboxMacIcns.setButtonType(3);
-    checkboxMacIcns.title = 'Mac Icns';
-    checkboxMacIcns.state =  userDefaults.exportMacIcns;
-
-    var checkboxWebFav = NSButton.alloc().initWithFrame(NSMakeRect(180,246,300,25));
-    checkboxWebFav.setButtonType(3);
-    checkboxWebFav.title = 'Web Favicon';
-    checkboxWebFav.state =  userDefaults.exportWebFav;
-
-
-
-  //var checkboxXCode = NSButton.alloc().initWithFrame(NSMakeRect(0,264,300,25));
-  var checkboxXCode = NSButton.alloc().initWithFrame(NSMakeRect(0,199,300,25));
-    checkboxXCode.setButtonType(3);
-    checkboxXCode.title = I18N.INPUT_XCODE_FLODER;
-    checkboxXCode.state =  userDefaults.exportXcode;
-
-  
-
-   var xcodeInput = NSTextField.alloc().initWithFrame(NSMakeRect(0,175,300,25));
-    xcodeInput.stringValue = userDefaults.xcodeProjectPath;
-    xcodeInput.editable = true;
-    xcodeInput.placeholder="Drop you project or workspace file to here"
-
-
-    var checkboxIphone = NSButton.alloc().initWithFrame(NSMakeRect(20,147,300,25));
-    checkboxIphone.setButtonType(3);
-    checkboxIphone.title = 'iPhone';
-    checkboxIphone.state =  userDefaults.exportIphoneIcon;
-
-    var checkboxIpad = NSButton.alloc().initWithFrame(NSMakeRect(100,147,300,25));
-    checkboxIpad.setButtonType(3);
-    checkboxIpad.title = 'iPad';
-    checkboxIpad.state =  userDefaults.exportIpadIcon;
-
-    var checkboxAppleWatch = NSButton.alloc().initWithFrame(NSMakeRect(180,147,300,25));
-    checkboxAppleWatch.setButtonType(3);
-    checkboxAppleWatch.title = 'Apple Watch';
-    checkboxAppleWatch.state =  userDefaults.exportAppleWatchIcon;
-
-
-
-
-
-
-
-   // var checkboxAndroid = NSButton.alloc().initWithFrame(NSMakeRect(0,124,300,25));
-    var checkboxAndroid = NSButton.alloc().initWithFrame(NSMakeRect(0,104,300,25));
-    checkboxAndroid.setButtonType(3);
-    checkboxAndroid.title = I18N.INPUT_ANDROID_FLODER;
-    checkboxAndroid.state = userDefaults.exportAndroid;
-
-
-
-// var textAndroid = NSTextView.alloc().initWithFrame(NSMakeRect(0,104,300,20));
-//     textAndroid.string = '(or drop you AndroidManifest.xml file to here)';
-//     textAndroid.drawsBackground = false;
-//     textAndroid.editable = false;
-
-   var androidInput = NSTextField.alloc().initWithFrame(NSMakeRect(0,80,300,25));
-    androidInput.stringValue = userDefaults.androidResPath;
-    androidInput.editable = true;
-
-
-      var checkboxOther = NSButton.alloc().initWithFrame(NSMakeRect(0,36,300,25));
-    checkboxOther.setButtonType(3);
-    checkboxOther.title = I18N.INPUT_STORE_FLODER;
-   checkboxOther.state = userDefaults.exportOther;
-
-var otherInput = NSTextField.alloc().initWithFrame(NSMakeRect(0,12,300,25));
-    otherInput.stringValue = userDefaults.otherPath;
-    otherInput.editable = true;
-
-
-   accessory.addSubview(checkboxDesktop);
-   accessory.addSubview(desktopAppInput);
-   accessory.addSubview(checkboxWinIco);
-   accessory.addSubview(checkboxMacIcns);
-   accessory.addSubview(checkboxWebFav);
-
-   accessory.addSubview(xcodeInput);
- //  accessory.addSubview(textXcode);
-   accessory.addSubview(checkboxOther);
-   accessory.addSubview(checkboxIphone);
-   accessory.addSubview(checkboxIpad);
-   accessory.addSubview(checkboxAppleWatch);
-   accessory.addSubview(androidInput);
- //   accessory.addSubview(textAndroid);
-   accessory.addSubview(checkboxAndroid);
-    accessory.addSubview(otherInput);
-     accessory.addSubview(checkboxXCode);
-
-
-    var alert = NSAlert.alloc().init();
-   alert.setMessageText(I18N.EXPORT_DIRCTORY);
-    alert.addButtonWithTitle(I18N.SAVE_PREF);
-    alert.addButtonWithTitle(I18N.CANCEL);
-     alert.setIcon(NSImage.alloc().initWithContentsOfFile(
-      context.plugin.urlForResourceNamed('logo.png').path()));
-    alert.setAccessoryView(accessory);
-
-    var responseCode = alert.runModal();
-
-
-     if (responseCode === 1000) {
-
-      
-
-         userDefaults.desktopAppPath = desktopAppInput.stringValue();
-         userDefaults.exportDesktopApp = checkboxDesktop.state();
-         userDefaults.exportWinIco = checkboxWinIco.state();
-         userDefaults.exportMacIcns = checkboxMacIcns.state();
-         userDefaults.exportWebFav = checkboxWebFav.state();
-
-         userDefaults.xcodeProjectPath = xcodeInput.stringValue();
-         userDefaults.androidResPath = androidInput.stringValue();
-         userDefaults.otherPath = otherInput.stringValue();
-
-         userDefaults.exportXcode = checkboxXCode.state();
-
-         userDefaults.exportIphoneIcon = checkboxIphone.state() ;
-
-         userDefaults.exportIpadIcon = checkboxIpad.state() ;
-         userDefaults.exportAppleWatchIcon = checkboxAppleWatch.state();
-
-         userDefaults.exportAndroid = checkboxAndroid.state();
-
-         userDefaults.exportOther = checkboxOther.state();
-
-         //log(@"save input xcode"+xcodeInput.stringValue())
-        saveValues(userDefaults)  ;
-
-        
-    }
-    else {
-       
-    }
- }
+ 
 
 
  function exportMiniAppsIcon(context,text){
@@ -658,66 +451,20 @@ var otherInput = NSTextField.alloc().initWithFrame(NSMakeRect(0,12,300,25));
  }
 
  function showMultiText(context,text){
-      var alert = NSAlert.alloc().init();
-      log("showText "+text);
+    var alert = NSAlert.alloc().init();
+    log("showText "+text);
     alert.setMessageText(text);
 
     alert.addButtonWithTitle(I18N.CLOSE);
     
-     alert.setIcon(NSImage.alloc().initWithContentsOfFile(
-      context.plugin.urlForResourceNamed('logo.png').path()));
+    alert.setIcon(NSImage.alloc().initWithContentsOfFile(
+      context.plugin.urlForResourceNamed('logo.png').path()
+      ));
    
     var responseCode = alert.runModal();
 
 
  }
 
-var onExportIcon = function onExportIcon(context,userDefaults)
-{
-    log("onExporCCC");
-
-    userDefaults = loadDefaults(presets);
-
-    parseContext(context);
-
-     //initVars(context);
-
-     log("userDefaults.xcodeProjectPath ="+userDefaults.xcodeProjectPath);
-
-      var selection = context.selection;
-
-      exportInfo = ""; //输出文本
-
-      if(selection.count() >0){
-         var layer =    selection.firstObject();
-
-         log("exportOther ="+userDefaults.exportOther.intValue());
-
-         if(userDefaults.exportDesktopApp ==1)    
-               exportDesktopIcon(layer);
-
-        //exportMacIcns(layer);
-
-        if(userDefaults.exportOther ==1)  
-            exportStoreIcon(layer);
-
-        if(userDefaults.exportXcode ==1)  
-             exportIOSIcon(layer);
-     
-        if(userDefaults.exportAndroid ==1)    
-              exportAndroidIcon(layer);
-         
-    
-        if(exportInfo == "")
-            doc.showMessage(I18N.NONE_ICON_EXPORT);
-          else 
-            showMultiText(context,exportInfo);
-            //doc.showMessage(exportInfo);
-
-      }
-     else 
-        doc.showMessage(I18N.PLEASE_SELECT_LAYER);
-
-}
 
 
