@@ -47,6 +47,28 @@ const iOSIconInfos = [
   generateAppleIconInfo("universal", "ios", undefined, "1024x1024")
 ];
 
+const watchOSIconInfos = [
+  generateAppleIconInfo("universal", "watchos", "2x", "22x22"),
+  generateAppleIconInfo("universal", "watchos", "2x", "24x24"),
+  generateAppleIconInfo("universal", "watchos", "2x", "27.5x27.5"),
+  generateAppleIconInfo("universal", "watchos", "2x", "29x29"),
+  generateAppleIconInfo("universal", "watchos", "2x", "30x30"),
+  generateAppleIconInfo("universal", "watchos", "2x", "32x32"),
+  generateAppleIconInfo("universal", "watchos", "2x", "33x33"),
+  generateAppleIconInfo("universal", "watchos", "2x", "40x40"),
+  generateAppleIconInfo("universal", "watchos", "2x", "43.5x43.5"),
+  generateAppleIconInfo("universal", "watchos", "2x", "44x44"),
+  generateAppleIconInfo("universal", "watchos", "2x", "46x46"),
+  generateAppleIconInfo("universal", "watchos", "2x", "50x50"),
+  generateAppleIconInfo("universal", "watchos", "2x", "51x51"),
+  generateAppleIconInfo("universal", "watchos", "2x", "54x54"),
+  generateAppleIconInfo("universal", "watchos", "2x", "86x86"),
+  generateAppleIconInfo("universal", "watchos", "2x", "98x98"),
+  generateAppleIconInfo("universal", "watchos", "2x", "108x108"),
+  generateAppleIconInfo("universal", "watchos", "2x", "117x117"),
+  generateAppleIconInfo("universal", "watchos", "2x", "129x129"),
+  generateAppleIconInfo("universal", "watchos", undefined, "1024x1024")
+];
 
 function generateImageContent(imageFilename, appleIconInfo) {
   const asset = {
@@ -216,7 +238,7 @@ function addIconContentOfXCAssets(imagesArray, name, appleIconInfo){
   
   var suffix = calculateResultSize(appleIconInfo.scale, appleIconInfo.size)
   var filename = name+"-"+suffix+".png";
-  
+
   const [width, height] = suffix.split("x").map(parseFloat);
 
   //查找是否已经生成,如果没有则生成
@@ -242,7 +264,11 @@ function exportIconOfiOSContentJson(layer,imagesArray){
 }
 
 function exportWatchContentJson(layer,imagesArray){
-  
+  var name = layer.name();
+
+   for (var i = 0; i < watchOSIconInfos.length; i++) {
+    addIconContentOfXCAssets(imagesArray, name, watchOSIconInfos[i])
+   }
 }
 
 function exportIOSIcon(layer) {
@@ -259,6 +285,10 @@ function exportIOSIcon(layer) {
 
   if(userDefaults.export_iOSIcon ==1){
     exportIconOfiOSContentJson(layer,imagesArray);
+  }
+
+  if(userDefaults.export_watchOSIcon ==1){
+    exportWatchContentJson(layer,imagesArray);
   }
 
 
