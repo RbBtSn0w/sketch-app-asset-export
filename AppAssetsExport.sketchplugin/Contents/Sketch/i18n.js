@@ -29,7 +29,7 @@ var Resources = {
         'EXPORT_IOS_ICON': 'export iOS icons to ',
         'EXPORT_ANDROID_ICON': 'export Android icons to ',
         'EXPORT_STORE_ICON': 'export App Store icons to ',
-        'INPUT_XCODE_FLODER':'Input XCode Assets.xcassets folder',
+        'INPUT_XCODE_FLODER':'Input XCode Assets.xcassets folder of Apple Platform',
         'INPUT_ANDROID_FLODER':'Input Android Resource (res) folder',
         'INPUT_STORE_FLODER':' Input app store icon folder',
         'EXPORT_DIRCTORY':'App Asset export folder',
