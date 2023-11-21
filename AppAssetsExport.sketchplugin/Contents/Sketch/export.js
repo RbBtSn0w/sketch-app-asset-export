@@ -8,13 +8,13 @@ var presets = {
         otherPath:'/Users/Shared/AppIcon',
         exportXcode:1,
         export_iOSIcon:1,
+        export_macOSIcon:0,
         export_watchOSIcon:0,
         exportAndroid:1,
         exportOther:1,
         desktopAppPath: '/Users/Shared/AppIcon/DesktopApp',
         exportDesktopApp:0,
         exportWinIco:0,
-        export_macOSIcon:0,
         exportWebFav:0,
 }   ;    
 
@@ -45,6 +45,19 @@ const iOSIconInfos = [
   generateAppleIconInfo("universal", "ios", "2x", "76x76"),
   generateAppleIconInfo("universal", "ios", "2x", "83.5x83.5"),
   generateAppleIconInfo("universal", "ios", undefined, "1024x1024")
+];
+
+const macOSIconInfos = [
+  generateAppleIconInfo("mac", undefined, "1x", "16x16"),
+  generateAppleIconInfo("mac", undefined, "2x", "16x16"),
+  generateAppleIconInfo("mac", undefined, "1x", "32x32"),
+  generateAppleIconInfo("mac", undefined, "2x", "32x32"),
+  generateAppleIconInfo("mac", undefined, "1x", "128x128"),
+  generateAppleIconInfo("mac", undefined, "2x", "128x128"),
+  generateAppleIconInfo("mac", undefined, "1x", "256x256"),
+  generateAppleIconInfo("mac", undefined, "2x", "256x256"),
+  generateAppleIconInfo("mac", undefined, "1x", "512x512"),
+  generateAppleIconInfo("mac", undefined, "2x", "512x512")
 ];
 
 const watchOSIconInfos = [
@@ -263,6 +276,14 @@ function exportIconOfiOSContentJson(layer,imagesArray){
    }
 }
 
+function exportIconOfmacOSContentJson(layer,imagesArray){
+  var name = layer.name();
+
+  for (var i = 0; i < macOSIconInfos.length; i++) {
+   addIconContentOfXCAssets(imagesArray, name, macOSIconInfos[i])
+  }
+}
+
 function exportWatchContentJson(layer,imagesArray){
   var name = layer.name();
 
@@ -271,10 +292,10 @@ function exportWatchContentJson(layer,imagesArray){
    }
 }
 
-function exportIOSIcon(layer) {
+function exportApplePlatformIcon(layer) {
   //var tmpDir =  "/Users/pro/Documents/AppIcon";
 
-  log("exportIOSIcon 1"+getSketchVersionNumber());
+  log("exportApplePlatformIcon 1"+getSketchVersionNumber());
 
 
   checkExportDir(userDefaults.xcodeProjectPath,"AppIcon.appiconset");
@@ -285,6 +306,10 @@ function exportIOSIcon(layer) {
 
   if(userDefaults.export_iOSIcon ==1){
     exportIconOfiOSContentJson(layer,imagesArray);
+  }
+
+  if(userDefaults.export_macOSIcon == 1){
+    exportIconOfmacOSContentJson(layer,imagesArray);
   }
 
   if(userDefaults.export_watchOSIcon ==1){
@@ -306,7 +331,7 @@ function exportIOSIcon(layer) {
     images : imagesArray
   }
 
-  log("exportIOSIcon 3");
+  log("exportApplePlatformIcon 3");
   var filePath = appIconSetPath + "/Contents.json"
   log("json file2 "+filePath);
 
@@ -315,10 +340,10 @@ function exportIOSIcon(layer) {
       return value;
   }, 2);
 
-  log("exportIOSIcon 4");
+  log("exportApplePlatformIcon 4");
   writeTextToFile(jsonString, filePath)
 
-  log("exportIOSIcon 5");
+  log("exportApplePlatformIcon 5");
 }
 
   function createGroup(mask){
@@ -415,56 +440,11 @@ function exportAndroidIcon(layer){
  }
 
 
-
- function export_macOSIcon(layer){
-
-    checkExportDir(userDefaults.desktopAppPath, layer.name()+".iconset");
-
-    var path = userDefaults.desktopAppPath + "/" + layer.name()+".iconset";
-
-     for(var i=0; i< macSuffixArray.length;i++){
-
-            
-
-             var suffix = macSuffixArray[i];
-             var size = macSizeArray[i];
-
-              var name2 = "icon_"+suffix+".png";
-             var scale = size / [[layer frame] width];
-             
-               exportLayerToPath(layer,path+"/"+ name2,scale,"png","-"+suffix);
-          }
-
-     //调用 icoutil 进行转换
-     var convertTask = [[NSTask alloc] init];
-     //convertTask.setLaunchPath("/bin/bash");
-     //iconutil -c icon.icns <path to .iconset file>
-     var convertIcns = "/usr/bin/iconutil -c icns  \""+ path+"\" -o \"" +userDefaults.desktopAppPath +"/"+layer.name()+".icns\""; 
-
-     log("export_macOSIcon "+convertIcns);
-
-      [convertTask setLaunchPath:@"/bin/bash"]
-      [convertTask setArguments:["-c", convertIcns]]
-      [convertTask launch]
-      [convertTask waitUntilExit]
-
-      if ([convertTask terminationStatus] == 0){
-        log("export icns success");
-      }
-   
-
- }
-
  function  exportDesktopIcon(layer){
     
     
     if(userDefaults.exportWinIco == 1){
 
-    }
-
-   if(userDefaults.export_macOSIcon == 1){
-        //checkExportDir(userDefaults.desktopAppPath,"iconset");
-        export_macOSIcon(layer);
     }
 
      if(userDefaults.exportWebFav == 1){

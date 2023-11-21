@@ -126,11 +126,6 @@ var onSetting = function onSetting(context){
     checkboxWinIco.title = 'Win Ico';
     checkboxWinIco.state =  userDefaults.exportWinIco;
 
-    var checkboxMacIcns = NSButton.alloc().initWithFrame(NSMakeRect(100,246,300,25));
-    checkboxMacIcns.setButtonType(3);
-    checkboxMacIcns.title = 'Mac Icns';
-    checkboxMacIcns.state =  userDefaults.export_macOSIcon;
-
     var checkboxWebFav = NSButton.alloc().initWithFrame(NSMakeRect(180,246,300,25));
     checkboxWebFav.setButtonType(3);
     checkboxWebFav.title = 'Web Favicon';
@@ -152,15 +147,20 @@ var onSetting = function onSetting(context){
     xcodeInput.placeholder="Drop you project or workspace file to here"
 
 
-    var checkboxIphone = NSButton.alloc().initWithFrame(NSMakeRect(20,147,300,25));
-    checkboxIphone.setButtonType(3);
-    checkboxIphone.title = 'iOS';
-    checkboxIphone.state =  userDefaults.export_iOSIcon;
+    var checkbox_iOS = NSButton.alloc().initWithFrame(NSMakeRect(20,147,300,25));
+    checkbox_iOS.setButtonType(3);
+    checkbox_iOS.title = 'iOS';
+    checkbox_iOS.state =  userDefaults.export_iOSIcon;
 
-    var checkboxAppleWatch = NSButton.alloc().initWithFrame(NSMakeRect(180,147,300,25));
-    checkboxAppleWatch.setButtonType(3);
-    checkboxAppleWatch.title = 'watchOS';
-    checkboxAppleWatch.state =  userDefaults.export_watchOSIcon;
+    var checkbox_macOS = NSButton.alloc().initWithFrame(NSMakeRect(100,147,300,25));
+    checkbox_macOS.setButtonType(3);
+    checkbox_macOS.title = 'macOS';
+    checkbox_macOS.state =  userDefaults.export_macOSIcon;
+
+    var checkbox_watchOS = NSButton.alloc().initWithFrame(NSMakeRect(180,147,300,25));
+    checkbox_watchOS.setButtonType(3);
+    checkbox_watchOS.title = 'watchOS';
+    checkbox_watchOS.state =  userDefaults.export_watchOSIcon;
 
 
    // var checkboxAndroid = NSButton.alloc().initWithFrame(NSMakeRect(0,124,300,25));
@@ -194,14 +194,14 @@ var otherInput = NSTextField.alloc().initWithFrame(NSMakeRect(0,12,300,25));
    accessory.addSubview(checkboxDesktop);
    accessory.addSubview(desktopAppInput);
    accessory.addSubview(checkboxWinIco);
-   accessory.addSubview(checkboxMacIcns);
+   accessory.addSubview(checkbox_macOS);
    accessory.addSubview(checkboxWebFav);
 
    accessory.addSubview(xcodeInput);
  //  accessory.addSubview(textXcode);
    accessory.addSubview(checkboxOther);
-   accessory.addSubview(checkboxIphone);
-   accessory.addSubview(checkboxAppleWatch);
+   accessory.addSubview(checkbox_iOS);
+   accessory.addSubview(checkbox_watchOS);
    accessory.addSubview(androidInput);
  //   accessory.addSubview(textAndroid);
    accessory.addSubview(checkboxAndroid);
@@ -227,7 +227,7 @@ var otherInput = NSTextField.alloc().initWithFrame(NSMakeRect(0,12,300,25));
          userDefaults.desktopAppPath = desktopAppInput.stringValue();
          userDefaults.exportDesktopApp = checkboxDesktop.state();
          userDefaults.exportWinIco = checkboxWinIco.state();
-         userDefaults.export_macOSIcon = checkboxMacIcns.state();
+         userDefaults.export_macOSIcon = checkbox_macOS.state();
          userDefaults.exportWebFav = checkboxWebFav.state();
 
          userDefaults.xcodeProjectPath = xcodeInput.stringValue();
@@ -236,9 +236,9 @@ var otherInput = NSTextField.alloc().initWithFrame(NSMakeRect(0,12,300,25));
 
          userDefaults.exportXcode = checkboxXCode.state();
 
-         userDefaults.export_iOSIcon = checkboxIphone.state() ;
+         userDefaults.export_iOSIcon = checkbox_iOS.state() ;
 
-         userDefaults.export_watchOSIcon = checkboxAppleWatch.state();
+         userDefaults.export_watchOSIcon = checkbox_watchOS.state();
 
          userDefaults.exportAndroid = checkboxAndroid.state();
 
@@ -290,14 +290,12 @@ var onExportIcon = function onExportIcon(context)
             exportDesktopIcon(layer);
       }
 
-      //export_macOSIcon(layer);
-
       
       if(userDefaults.exportOther ==1)  
         exportStoreIcon(layer);
 
       if(userDefaults.exportXcode ==1)  
-        exportIOSIcon(layer);
+        exportApplePlatformIcon(layer);
     
       if(userDefaults.exportAndroid ==1)    
         exportAndroidIcon(layer);
